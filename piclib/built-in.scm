@@ -894,7 +894,7 @@
 	  (picrin macro))
 
   (define-record-type promise
-    (make-promise done obj)
+    (make-promise% done obj)
     promise?
     (done promise-done? promise-done!)
     (obj promise-value promise-value!))
@@ -903,13 +903,13 @@
     (ir-macro-transformer
      (lambda (form rename compare?)
        (let ((expr (cadr form)))
-	 `(make-promise #f (lambda () ,expr))))))
+	 `(make-promise% #f (lambda () ,expr))))))
 
   (define-syntax delay
     (ir-macro-transformer
      (lambda (form rename compare?)
        (let ((expr (cadr form)))
-	 `(delay-force (make-promise #t ,expr))))))
+	 `(delay-force (make-promise% #t ,expr))))))
 
   (define (promise-update! new old)
     (promise-done! old (promise-done? new))
@@ -923,11 +923,10 @@
 		  (promise-update! promise* promise))
 	  (force promise))))
 
-#;
   (define (make-promise obj)
     (if (promise? obj)
 	obj
-	(make-promise% #f obj)))
+	(make-promise% #t obj)))
 
   (export delay-force delay force make-promise promise?))
 
